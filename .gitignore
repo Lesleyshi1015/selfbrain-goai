@@ -1,0 +1,80 @@
+# SelfBrain-GOAI .gitignore
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.pyo
+*.egg-info/
+dist/
+build/
+*.egg
+.eggs/
+*.whl
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Secrets / Credentials
+.env
+.env.local
+*.key
+*.pem
+*.p12
+credentials.json
+token.json
+
+# Build artifacts
+*.so
+*.dll
+*.dylib
+
+# Node
+node_modules/
+package-lock.json
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.bak
+*.cache
+.cache/
+
+# Coverage
+htmlcov/
+.coverage
+coverage/
+*.cover
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Research (large files, not part of source)
+research/**/*.pdf
+research/**/*.zip
+research/**/*.tar.gz
+
+# 参赛PPT (large files)
+参赛PPT/**/*.pptx
+参赛PPT/**/*.pdf
