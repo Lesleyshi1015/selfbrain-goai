@@ -1,0 +1,32 @@
+SelfBrain — 隐私保护的多Agent协同系统
+
+7-Agent 黑板协同架构
+
+采用 AgentTeams 黑板模式，将复杂的AI数据保护任务分解为7个专业化Agent。所有Agent通过共享黑板进行信息交互，由 Privacy Guardian（Team Leader）统一调度与完整度评估。
+
+架构组成：
+
+Privacy Guardian（Team Leader）
+- 总调度 · 任务发布
+- 完整度评估 · 结果整合
+- 3B参数 FP16 显存6GB
+
+6个 Workers：
+- Memory Navigator：Memory Adapter路由 + 五层检索
+- Cipher Generator：动态密码生成 · 加密
+- Data Coordinator：多源数据融合
+- Policy Enforcer：分层权限验证
+- Audit Logger：审计日志 · 证据链
+- Validator：6维核查
+
+黑板模式核心机制：
+- Team Room：调度空间，单一入口，清晰职责链
+- 共享黑板：结构化状态 task/results/completeness/validation
+- 轮番喊人：按需调用，最小化资源占用
+- 完整度评估：确保结果质量，形成自主闭环
+
+显存占用：总计 ≤ 9GB（推荐 RTX 4070 12GB）
+
+开源/闭源边界：
+- 开源：Agent调用逻辑 + Skill Schema + Wrapper
+- 闭源：Core SDK（.so/.dll）+ 模型权重

@@ -1,0 +1,35 @@
+# @agent: session-260809-mild-seal | module: skeleton | ts: 2026-08-09T12:47+08:00
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "selfbrain-goai"
+version = "0.1.0"
+description = "SelfBrain-GOAI 参赛业务层：隐私保护的多Agent协同系统（AgentTeams 适配）"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "Apache-2.0" }
+authors = [{ name = "SelfBrain 小队" }]
+dependencies = [
+    "agent-teams-sdk>=0.1.0",
+    "jsonschema>=4.0",
+    "PyYAML>=6.0",
+    "torch>=2.0",
+    "transformers>=4.30",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7.0"]
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["sb_api*", "agents*", "skills*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = "-v"

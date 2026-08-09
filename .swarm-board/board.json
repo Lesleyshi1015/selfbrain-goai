@@ -1,0 +1,183 @@
+{
+  "task": {
+    "id": "goai-adaptation",
+    "goal": "SelfBrain-GOAI 适配（18执行Agent + 2Review，6 Wave，8.16初赛提交）",
+    "status": "running",
+    "wave": 1,
+    "updated_at": "2026-08-09T12:50+08:00"
+  },
+  "agents": {
+    "G1-skeleton": {
+      "sessionId": "260809-mild-seal",
+      "module": "skeleton/pyproject+specs",
+      "status": "done",
+      "foundIssue": null,
+      "output": "骨架完成：pyproject.toml(src布局)语法合法、CHANGE.md含范围/约束/验收、3个占位__init__.py、主项目与框架零修改",
+      "files": [
+        "pyproject.toml",
+        ".specs/02-goai-adapt/CHANGE.md",
+        "src/agents/__init__.py",
+        "src/skills/__init__.py",
+        "tests/__init__.py"
+      ]
+    },
+    "G2-sbapi": {
+      "sessionId": "260809-tidy-tide",
+      "module": "sb_api/bridge",
+      "status": "done",
+      "foundIssue": null,
+      "output": "sb_api 桥接层完成：loader.py 路径注入+统一加载入口、engine.py SBEngine 8 方法 stub（统一 envelope，零模型加载）、__init__.py 导出+create_engine。import 验证通过，冒烟测试全绿（torch 未 import）",
+      "files": [
+        "src/sb_api/loader.py",
+        "src/sb_api/engine.py",
+        "src/sb_api/__init__.py"
+      ]
+    },
+    "G3-guardian": {
+      "sessionId": null,
+      "module": "agents/guardian",
+      "status": "pending",
+      "foundIssue": null,
+      "output": null,
+      "files": []
+    },
+    "G4-navigator": {
+      "sessionId": null,
+      "module": "agents/navigator",
+      "status": "pending",
+      "foundIssue": null,
+      "output": null,
+      "files": []
+    },
+    "G5-cipher": {
+      "sessionId": null,
+      "module": "agents/cipher",
+      "status": "pending",
+      "foundIssue": null,
+      "output": null,
+      "files": []
+    },
+    "G6-coordinator": {
+      "sessionId": null,
+      "module": "agents/coordinator",
+      "status": "pending",
+      "foundIssue": null,
+      "output": null,
+      "files": []
+    },
+    "G7-policy": {
+      "sessionId": null,
+      "module": "agents/policy",
+      "status": "pending",
+      "foundIssue": null,
+      "output": null,
+      "files": []
+    },
+    "G8-audit": {
+      "sessionId": null,
+      "module": "agents/audit",
+      "status": "pending",
+      "foundIssue": null,
+      "output": null,
+      "files": []
+    },
+    "G9-validator": {
+      "sessionId": null,
+      "module": "agents/validator",
+      "status": "pending",
+      "foundIssue": null,
+      "output": null,
+      "files": []
+    },
+    "G10-shield": {
+      "sessionId": null,
+      "module": "skills/privacy_shield",
+      "status": "pending",
+      "foundIssue": null,
+      "output": null,
+      "files": []
+    },
+    "G11-probe": {
+      "sessionId": null,
+      "module": "skills/memory_probe",
+      "status": "pending",
+      "foundIssue": null,
+      "output": null,
+      "files": []
+    },
+    "G12-fusion": {
+      "sessionId": null,
+      "module": "skills/data_fusion",
+      "status": "pending",
+      "foundIssue": null,
+      "output": null,
+      "files": []
+    },
+    "G13-access": {
+      "sessionId": null,
+      "module": "skills/access_control",
+      "status": "pending",
+      "foundIssue": null,
+      "output": null,
+      "files": []
+    },
+    "G14-audit": {
+      "sessionId": null,
+      "module": "skills/audit_trail",
+      "status": "pending",
+      "foundIssue": null,
+      "output": null,
+      "files": []
+    },
+    "G15-verify": {
+      "sessionId": null,
+      "module": "skills/result_verify",
+      "status": "pending",
+      "foundIssue": null,
+      "output": null,
+      "files": []
+    },
+    "G16-demo": {
+      "sessionId": null,
+      "module": "demo",
+      "status": "pending",
+      "foundIssue": null,
+      "output": null,
+      "files": []
+    },
+    "G17-test": {
+      "sessionId": null,
+      "module": "tests",
+      "status": "pending",
+      "foundIssue": null,
+      "output": null,
+      "files": []
+    },
+    "G18-ppt": {
+      "sessionId": null,
+      "module": "ppt",
+      "status": "pending",
+      "foundIssue": null,
+      "output": null,
+      "files": []
+    },
+    "R1-arch-review": {
+      "sessionId": null,
+      "module": "review/architecture",
+      "status": "pending",
+      "foundIssue": null,
+      "output": null,
+      "files": []
+    },
+    "R2-bug-review": {
+      "sessionId": null,
+      "module": "review/bug",
+      "status": "pending",
+      "foundIssue": null,
+      "output": null,
+      "files": []
+    }
+  },
+  "completeness": 0,
+  "current_call": "G1-skeleton"
+}

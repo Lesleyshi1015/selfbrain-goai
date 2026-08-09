@@ -78,3 +78,6 @@ research/**/*.tar.gz
 # 参赛PPT (large files)
 参赛PPT/**/*.pptx
 参赛PPT/**/*.pdf
+
+# Windows 保留设备名历史遗留（git 无法追踪）
+nul

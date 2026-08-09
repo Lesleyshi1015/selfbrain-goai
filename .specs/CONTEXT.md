@@ -6,7 +6,11 @@
 
 ## 项目概述
 
-SelfBrain 是一个**隐私保护的多 Agent 协同系统**（AgentInfra），基于 7-Agent AgentTeams 架构，通过 Skill 体系和 Memory Adapter 适配器层，实现外部模型的"外脑"能力，同时保证用户数据隐私安全。
+SelfBrain 是一个**多Agent隐私防护协作的本地隐私模型**，基于 7-Agent AgentTeams 架构，通过 Skill 体系和 Memory Adapter 适配器层，实现外部模型的"外脑"能力，同时保证用户数据隐私安全。
+
+**口号**：接入你想用的任何外部先进大模型，但把隐私留在你的手上
+
+**核心痛点**：企业面临两难困境——使用外部大模型则隐私暴露，本地部署则成本高昂。SelfBrain提供第三条路：用外部最强模型，但隐私留在自己手上。
 
 **参赛赛道**: 阿里巴巴全球 AI 大赛 - 赛道一: 新智基座 | AgentInfra
 
