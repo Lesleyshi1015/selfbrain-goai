@@ -1,9 +1,11 @@
-<!-- @agent: session-260809-tidy-tide | module: tests | ts: 2026-08-09T13:55+08:00 -->
+<!-- @agent: session-260809-grand-sunset | module: tests | ts: 2026-08-09T15:03+08:00 -->
 
 # TEST — SelfBrain-GOAI 适配测试报告
 
-> 执行：G2-sbapi（转派修复，G17 失效未响应）· 2026-08-09 13:55 GMT+8
+> 执行：G17-test（session-260809-grand-sunset）· 2026-08-09 15:03 GMT+8
 > 结果：**195 passed / 0 failed / 0 errors** · 覆盖率 **88%**（目标 >80%）
+>
+> 测试文件：tests/conftest.py, test_sb_api.py, test_guardian.py, test_agents.py, test_skills.py, test_demo.py
 
 ## 1. 运行命令
 
