@@ -3,8 +3,8 @@
     "id": "goai-adaptation",
     "goal": "SelfBrain-GOAI 适配（18执行Agent + 2Review，6 Wave，8.16初赛提交）",
     "status": "running",
-    "wave": 1,
-    "updated_at": "2026-08-09T12:50+08:00"
+    "wave": 3,
+    "updated_at": "2026-08-09T12:58+08:00"
   },
   "agents": {
     "G1-skeleton": {
@@ -34,108 +34,135 @@
       ]
     },
     "G3-guardian": {
-      "sessionId": null,
+      "sessionId": "260809-lucid-copper",
       "module": "agents/guardian",
-      "status": "pending",
+      "status": "done",
       "foundIssue": null,
-      "output": null,
-      "files": []
+      "output": "PrivacyGuardian (CuratorAgent) 完成：继承 CuratorAgent 构造可实例化、evaluate_completeness 实现（navigator+cipher+coordinator+policy 加权 0-0.95）、process_query 调度+sb_api fuse、reconstruct_result、on_message/execute 基类覆写、身份指纹+文档字符串完整、import 验证通过",
+      "files": [
+        "src/agents/guardian.py"
+      ],
+      "updatedAt": "2026-08-09T12:54:31.861383"
     },
     "G4-navigator": {
-      "sessionId": null,
+      "sessionId": "260809-new-elk",
       "module": "agents/navigator",
-      "status": "pending",
+      "status": "done",
       "foundIssue": null,
-      "output": null,
-      "files": []
+      "output": "MemoryNavigator 完成：继承 WorkerAgent，do_work 编排 engine.search 调用，黑板读写正确，import 验证通过",
+      "files": [
+        "src/agents/navigator.py"
+      ]
     },
     "G5-cipher": {
-      "sessionId": null,
+      "sessionId": "260809-dynamic-plateau",
       "module": "agents/cipher",
-      "status": "pending",
+      "status": "done",
       "foundIssue": null,
-      "output": null,
-      "files": []
+      "output": "CipherGenerator 完成：继承 WorkerAgent，do_work 读取黑板文本→调用 sb_api.cipher_analyze→写回 cipher_result，board.json 追踪就位，import 验证通过",
+      "files": [
+        "src/agents/cipher.py"
+      ]
     },
     "G6-coordinator": {
-      "sessionId": null,
+      "sessionId": "260809-sleek-creek",
       "module": "agents/coordinator",
-      "status": "pending",
+      "status": "done",
       "foundIssue": null,
-      "output": null,
-      "files": []
+      "output": "DataCoordinator WorkerAgent 完成：继承 WorkerAgent，实现 do_work 从黑板读取 navigator_result/cipher_result，执行合并/去重/冲突检测，写回 coordinator_result。import 验证通过。",
+      "files": [
+        "src/agents/coordinator.py"
+      ]
     },
     "G7-policy": {
-      "sessionId": null,
+      "sessionId": "260809-new-swamp",
       "module": "agents/policy",
-      "status": "pending",
+      "status": "done",
       "foundIssue": null,
-      "output": null,
-      "files": []
+      "output": "PolicyEnforcer 完成：继承 WorkerAgent，do_work 从黑板读待校验文本→调用 engine.policy_check→写回 policy_result（含 allowed/reason/policy），异常降级处理，import 验证通过",
+      "files": [
+        "src/agents/policy.py"
+      ]
     },
     "G8-audit": {
-      "sessionId": null,
+      "sessionId": "260809-safe-cobble",
       "module": "agents/audit",
-      "status": "pending",
+      "status": "done",
       "foundIssue": null,
-      "output": null,
-      "files": []
+      "output": "AuditLogger 完成：继承 WorkerAgent，do_work 读取黑板各 *_result 生成审计条目，写回 audit_result + 本地 JSONL（logs/），含完整文档字符串/类型注解/异常降级处理，import 验证+冒烟测试通过",
+      "files": [
+        "src/agents/audit.py"
+      ]
     },
     "G9-validator": {
-      "sessionId": null,
+      "sessionId": "260809-tall-bloom",
       "module": "agents/validator",
-      "status": "pending",
+      "status": "done",
       "foundIssue": null,
-      "output": null,
-      "files": []
+      "output": "Validator 完成：继承 ValidatorAgent，实现 6 维核查（completeness/correctness/privacy/consistency/traceability/performance），返回 ValidationResult，import 验证通过",
+      "files": [
+        "src/agents/validator.py"
+      ]
     },
     "G10-shield": {
-      "sessionId": null,
+      "sessionId": "260809-ready-horizon",
       "module": "skills/privacy_shield",
-      "status": "pending",
+      "status": "done",
       "foundIssue": null,
-      "output": null,
-      "files": []
+      "output": "privacy_shield 完成：PrivacyShield(BaseSkill) 正则检测 PII（phone/id_card/bank_card/address/key/other[email/ip/车牌/信用代码]），区间抢占防长数字子串误伤，返回 detected+masked_text+risk_level(low/medium/high)；input/output JSON Schema(Draft 2020-12)，SchemaValidator 注册+输入/输出 jsonschema 校验、PluginManager 注册+auto_discover、9 类用例+异常处理全绿；修复 _mask tail=0 拼接原文 bug",
+      "files": [
+        "src/skills/privacy_shield.py"
+      ]
     },
     "G11-probe": {
-      "sessionId": null,
+      "sessionId": "260809-brave-dawn",
       "module": "skills/memory_probe",
-      "status": "pending",
+      "status": "done",
       "foundIssue": null,
-      "output": null,
-      "files": []
+      "output": "MemoryProbe 完成：继承 BaseSkill，name/schema(description+input+output)/execute(input|query=) 契约齐备，schema 校验生效（缺 query 抛 ValueError）。规则/词典驱动零模型：同义词组 12 组 + 领域关键词 20 个 + 连接词拆解，返回 {original, expanded, decomposed, note}。冒烟测试全绿（继承/校验/扩展/拆解/异常/英文查询）。src/sb_api 与 agent-teams-sdk 零修改。",
+      "files": [
+        "src/skills/memory_probe.py"
+      ]
     },
     "G12-fusion": {
-      "sessionId": null,
+      "sessionId": "260809-tidy-willow",
       "module": "skills/data_fusion",
-      "status": "pending",
+      "status": "done",
       "foundIssue": null,
-      "output": null,
-      "files": []
+      "output": "DataFusion(BaseSkill) 完成：name/description/input_schema + execute(input) 统一 envelope；相似度去重(紧凑归一化+包含检测+SequenceMatcher/bigram Jaccard) + 打分降序 + top_n 截取；基类 validate_input 校验生效；8 项冒烟测试全绿（继承/schema/去重融合排序/5 类异常/空输入/阈值边界/英文归一化）",
+      "files": [
+        "src/skills/data_fusion.py"
+      ]
     },
     "G13-access": {
-      "sessionId": null,
+      "sessionId": "260809-true-swamp",
       "module": "skills/access_control",
-      "status": "pending",
+      "status": "done",
       "foundIssue": null,
-      "output": null,
-      "files": []
+      "output": "AccessControl Skill 完成：继承 BaseSkill，内置 admin/owner/user/guest 四角色 × read/write/delete 权限矩阵（含 public/owned/restricted 作用域细化），fail-closed 默认拒绝，未匹配规则返回 allowed=false + suggested_actions 补救建议；jsonschema 输入输出校验（缺失时手工降级），统一 AccessControlValidationError 异常契约；12 场景功能测试 + 6 项验收全部通过。",
+      "files": [
+        "src/skills/access_control.py"
+      ]
     },
     "G14-audit": {
-      "sessionId": null,
+      "sessionId": "260809-airy-cedar",
       "module": "skills/audit_trail",
-      "status": "pending",
+      "status": "done",
       "foundIssue": null,
-      "output": null,
-      "files": []
+      "output": "AuditTrail 技能完成：继承 BaseSkill，input_schema(events: ts/agent/action/result) 经 jsonschema 严格校验，execute 返回 entries(格式化行)/summary(total+by_agent)/report(文本报告)。基类 validate_input + SchemaValidator.register 双契约验证通过，正常/异常路径冒烟全绿。",
+      "files": [
+        "src/skills/audit_trail.py"
+      ]
     },
     "G15-verify": {
-      "sessionId": null,
+      "sessionId": "260809-golden-eagle",
       "module": "skills/result_verify",
-      "status": "pending",
+      "status": "done",
       "foundIssue": null,
-      "output": null,
-      "files": []
+      "output": "总调度确认: result_verify.py 文件完整(26KB) + 冒烟测试通过(缺失expected_keys正确拦截)",
+      "files": [
+        "src/skills/result_verify.py"
+      ]
     },
     "G16-demo": {
       "sessionId": null,
