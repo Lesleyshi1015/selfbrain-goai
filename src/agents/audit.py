@@ -201,6 +201,9 @@ class AuditLogger(WorkerAgent):
                 "status": "completed",
             }
 
+            # 写回黑板，供 Validator 6维核查使用
+            self.team_room.write("audit_result", result, updated_by=self.name)
+
             return result
 
         except Exception as exc:
@@ -213,6 +216,11 @@ class AuditLogger(WorkerAgent):
                 "status": "error",
                 "error_message": str(exc),
             }
+            # 异常时也尽量写回黑板，保证审计链路不中断
+            try:
+                self.team_room.write("audit_result", error_result, updated_by=self.name)
+            except Exception:
+                pass
             self._log_warning(f"审计执行异常: {exc}")
             return error_result
 

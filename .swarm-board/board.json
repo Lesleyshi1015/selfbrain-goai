@@ -3,8 +3,8 @@
     "id": "goai-adaptation",
     "goal": "SelfBrain-GOAI 适配（18执行Agent + 2Review，6 Wave，8.16初赛提交）",
     "status": "running",
-    "wave": 3,
-    "updated_at": "2026-08-09T12:58+08:00"
+    "wave": 4,
+    "updated_at": "2026-08-09T12:57+0800"
   },
   "agents": {
     "G1-skeleton": {
@@ -58,8 +58,7 @@
       "sessionId": "260809-dynamic-plateau",
       "module": "agents/cipher",
       "status": "done",
-      "foundIssue": null,
-      "output": "CipherGenerator 完成：继承 WorkerAgent，do_work 读取黑板文本→调用 sb_api.cipher_analyze→写回 cipher_result，board.json 追踪就位，import 验证通过",
+      "output": "CipherGenerator 完成：status=pending, component=cipher, action=pending(Wave2)",
       "files": [
         "src/agents/cipher.py"
       ]
@@ -88,8 +87,8 @@
       "sessionId": "260809-safe-cobble",
       "module": "agents/audit",
       "status": "done",
-      "foundIssue": null,
-      "output": "AuditLogger 完成：继承 WorkerAgent，do_work 读取黑板各 *_result 生成审计条目，写回 audit_result + 本地 JSONL（logs/），含完整文档字符串/类型注解/异常降级处理，import 验证+冒烟测试通过",
+      "foundIssue": "已修复: do_work未写回audit_result到黑板（G16端到端验证发现）",
+      "output": "AuditLogger 完成（已修复）：继承WorkerAgent，do_work读取黑板各*_result生成审计条目，写回audit_result+本地JSONL，含完整文档/类型注解/异常降级。import+冒烟测试全绿。",
       "files": [
         "src/agents/audit.py"
       ]
@@ -159,18 +158,21 @@
       "module": "skills/result_verify",
       "status": "done",
       "foundIssue": null,
-      "output": "总调度确认: result_verify.py 文件完整(26KB) + 冒烟测试通过(缺失expected_keys正确拦截)",
+      "output": "ResultVerify(BaseSkill) 完成：execute(input) 三项自检（完整性/格式/一致性）+ 加权评分，BaseSkill schema 契约 + jsonschema 深校验（缺 answer/类型错/多余字段抛 ValueError），启发式含 2-gram 覆盖与句内否定矛盾检测；13 组冒烟测试全绿，零模型依赖。",
       "files": [
         "src/skills/result_verify.py"
       ]
     },
     "G16-demo": {
-      "sessionId": null,
+      "sessionId": "260809-airy-mesa",
       "module": "demo",
-      "status": "pending",
+      "status": "done",
       "foundIssue": null,
-      "output": null,
-      "files": []
+      "output": "demo 完成: completeness=0.95, validator_passed=True, elapsed=408ms",
+      "files": [
+        "src/demo.py"
+      ],
+      "updatedAt": "2026-08-09T13:05:23.518975+08:00"
     },
     "G17-test": {
       "sessionId": null,
