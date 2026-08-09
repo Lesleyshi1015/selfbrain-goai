@@ -54,15 +54,21 @@ class TestMemoryNavigator:
         assert team_room.read("navigator_result") == result
         engine_stub.search.assert_called_once_with("我的密码在哪")
 
-    def test_do_work_empty_query_raises(self, nav, team_room):
+    def test_do_work_empty_query_returns_error_envelope(self, nav, team_room):
+        # [转派修复·G2-sbapi] @agent: session-260809-tidy-tide | module: tests | ts: 2026-08-09T13:58+08:00
+        # R2 P0-3：空查询不再抛异常，返回 error envelope 并写黑板（与 cipher.py 一致）
         team_room.write("user_query", "")
-        with pytest.raises(ValueError, match="user_query 为空"):
-            nav.do_work({"action": "work"})
+        result = nav.do_work({"action": "work"})
+        assert result["status"] == "error"
+        assert result["data"]["error"] == "user_query 为空"
+        assert team_room.read("navigator_result")["status"] == "error"
 
-    def test_do_work_no_query_key_raises(self, nav, team_room):
-        # 未写入 user_query
-        with pytest.raises((ValueError, TypeError)):
-            nav.do_work({"action": "work"})
+    def test_do_work_no_query_key_returns_error_envelope(self, nav, team_room):
+        # 未写入 user_query（R2 P0-3 修复后返回 error envelope，不抛异常）
+        result = nav.do_work({"action": "work"})
+        assert result["status"] == "error"
+        assert result["data"]["error"] == "user_query 为空"
+        assert team_room.read("navigator_result")["status"] == "error"
 
     def test_do_work_engine_exception_returns_error_envelope(self, nav, team_room, engine_stub):
         team_room.write("user_query", "test")

@@ -171,13 +171,15 @@ def _run_workers(
 
     # 1. Navigator
     print(f"  [{mode_tag}] MemoryNavigator 执行记忆检索...")
-    nav = MemoryNavigator("G4-navigator", team_room)
+    # [转派修复·G2-sbapi] @agent: session-260809-tidy-tide | module: demo | ts: 2026-08-09T13:58+08:00
+    # R2 P0-2/P1-4：注入共享 engine，避免真实模式多实例重复加载模型、unload 不协调
+    nav = MemoryNavigator("G4-navigator", team_room, engine)
     results["navigator"] = nav.execute({"action": "work"})
     print(f"    → status={results['navigator'].get('status')}")
 
     # 2. Cipher
     print(f"  [{mode_tag}] CipherGenerator 执行加密分析...")
-    cipher = CipherGenerator(team_room)
+    cipher = CipherGenerator(team_room, engine)
     results["cipher"] = cipher.execute({"action": "work"})
     print(f"    → status={results['cipher'].get('status')}")
 

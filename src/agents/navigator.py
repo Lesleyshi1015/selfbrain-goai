@@ -40,15 +40,24 @@ class MemoryNavigator(WorkerAgent):
         team_room: 共享黑板实例（由基类注入）。
     """
 
-    def __init__(self, name: str, team_room: TeamRoom) -> None:
+    def __init__(
+        self,
+        name: str,
+        team_room: TeamRoom,
+        engine: Any | None = None,
+    ) -> None:
         """初始化导航员。
 
         Args:
             name: Agent 标识名（蜂群中应为 ``"G4-navigator"``）。
             team_room: 共享黑板实例。
+            engine: 可选的 SBEngine 实例；为 None 时内部创建（默认）。
+                蜂群编排（如 demo）应传入共享实例，避免真实模式重复加载模型。
         """
         super().__init__(name, team_room)
-        self._engine = create_engine()
+        # [转派修复·G2-sbapi] @agent: session-260809-tidy-tide | module: agents | ts: 2026-08-09T13:58+08:00
+        # R2 P0-2：支持注入共享 engine，避免多 engine 实例重复加载模型
+        self._engine = engine if engine is not None else create_engine()
 
     def do_work(self, task: Dict[str, Any]) -> Any:
         """执行记忆检索任务。
@@ -73,13 +82,26 @@ class MemoryNavigator(WorkerAgent):
                 }
 
         Raises:
-            KeyError: 黑板中不存在 ``user_query`` 键。
-            Exception: sb_api 引擎调用异常（记录并返回 error envelope）。
+            Exception: 其他未预期异常（引擎调用异常已捕获返回 error envelope；
+                空查询返回 error envelope 不抛异常，与 cipher.py 一致）。
         """
         # 1. 从黑板读取用户查询
         query: str = self.team_room.read("user_query")
         if not query:
-            raise ValueError("user_query 为空，无法执行检索")
+            # [转派修复·G2-sbapi] @agent: session-260809-tidy-tide | module: agents | ts: 2026-08-09T13:58+08:00
+            # R2 P0-3：不抛异常阻断蜂群，返回 error envelope 并写黑板，
+            # 保证 Guardian 完整度评估可读到 navigator_result
+            result = {
+                "status": "error",
+                "data": {"error": "user_query 为空"},
+                "component": "navigator",
+            }
+            self.team_room.write(
+                "navigator_result",
+                result,
+                updated_by=self.name,
+            )
+            return result
 
         # 2. 调用 sb_api 引擎进行语义检索
         # TODO(G2/Wave2): 真实模型调用由 sb_api.engine.search 补全，

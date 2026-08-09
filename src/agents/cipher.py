@@ -58,14 +58,22 @@ class CipherGenerator(WorkerAgent):
         engine: SBEngine 实例（惰性初始化，首次 do_work 时创建）。
     """
 
-    def __init__(self, team_room: TeamRoom) -> None:
+    def __init__(
+        self,
+        team_room: TeamRoom,
+        engine: SBEngine | None = None,
+    ) -> None:
         """初始化 CipherGenerator。
 
         Args:
             team_room: 共享黑板实例，用于读写分析文本和结果。
+            engine: 可选的 SBEngine 实例；为 None 时惰性创建（默认）。
+                蜂群编排（如 demo）应传入共享实例，避免真实模式重复加载模型。
         """
         super().__init__(_AGENT_ID, team_room)
-        self._engine: SBEngine | None = None
+        # [转派修复·G2-sbapi] @agent: session-260809-tidy-tide | module: agents | ts: 2026-08-09T13:58+08:00
+        # R2 P0-2：支持注入共享 engine（None 时保持惰性创建语义）
+        self._engine: SBEngine | None = engine
 
     # ------------------------------------------------------------------
     # 属性

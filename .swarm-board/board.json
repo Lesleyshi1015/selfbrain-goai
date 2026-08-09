@@ -4,7 +4,7 @@
     "goal": "SelfBrain-GOAI 适配（18执行Agent + 2Review，6 Wave，8.16初赛提交）",
     "status": "running",
     "wave": 5,
-    "updated_at": "2026-08-09T13:55+08:00"
+    "updated_at": "2026-08-09T14:00+08:00"
   },
   "agents": {
     "G1-skeleton": {
@@ -26,7 +26,7 @@
       "module": "sb_api/bridge",
       "status": "done",
       "foundIssue": null,
-      "output": "sb_api 桥接层完成：loader.py 路径注入+统一加载入口、engine.py SBEngine 8 方法 stub（统一 envelope，零模型加载）、__init__.py 导出+create_engine。import 验证通过，冒烟测试全绿（torch 未 import） | 转派修复 G16：src/demo.py stdout 包装（P0）— reconfigure 方案根治，pytest 13 passed + demo CLI 正常 | 转派修复 G17：5 处测试断言（195 passed/0 failed/88% 覆盖），TEST.md 已产出",
+      "output": "sb_api 桥接层完成：loader.py 路径注入+统一加载入口、engine.py SBEngine 8 方法 stub（统一 envelope，零模型加载）、__init__.py 导出+create_engine。import 验证通过，冒烟测试全绿（torch 未 import） | 转派修复 G16：src/demo.py stdout 包装（P0）— reconfigure 方案根治，pytest 13 passed + demo CLI 正常 | 转派修复 G17：5 处测试断言（195 passed/0 failed/88% 覆盖），TEST.md 已产出 | 转派修复 R2 P0：navigator 空查询 error envelope（P0-3）+ 共享 engine 注入（P0-2/P1-4，demo/navigator/cipher），pytest 195 passed + demo 正常",
       "files": [
         "src/sb_api/loader.py",
         "src/sb_api/engine.py",
@@ -44,23 +44,24 @@
       "files": [
         "src/agents/guardian.py"
       ],
-      "updatedAt": "2026-08-09T13:56:32.327982"
+      "updatedAt": "2026-08-09T14:01:05.687295"
     },
     "G4-navigator": {
       "sessionId": "260809-new-elk",
       "module": "agents/navigator",
       "status": "done",
-      "foundIssue": null,
+      "foundIssue": "R2 P0-3：空查询抛 ValueError 阻断蜂群 — 已转派 G2-sbapi 修复（返回 error envelope 写黑板）；P0-2：支持共享 engine 注入",
       "output": "MemoryNavigator 完成：继承 WorkerAgent，do_work 编排 engine.search 调用，黑板读写正确，import 验证通过",
       "files": [
         "src/agents/navigator.py"
-      ]
+      ],
+      "fixedBy": "G2-sbapi (session-260809-tidy-tide)"
     },
     "G5-cipher": {
       "sessionId": "260809-dynamic-plateau",
       "module": "agents/cipher",
       "status": "done",
-      "output": "CipherGenerator 完成：status=pending, component=cipher, action=pending(Wave2)",
+      "output": "CipherGenerator 完成：status=<MagicMock name='mock.cipher_analyze().get()' id='1619496052992'>, component=<MagicMock name='mock.cipher_analyze().get()' id='1619496052992'>, action=<MagicMock name='mock.cipher_analyze().get().get()' id='1619496053664'>",
       "files": [
         "src/agents/cipher.py"
       ]
@@ -169,12 +170,12 @@
       "sessionId": "260809-airy-mesa",
       "module": "demo",
       "status": "done",
-      "foundIssue": "stdout 包装损坏 pytest capture（3 次未落地）已转派 G2-sbapi 修复完成：reconfigure 方案，tests/test_demo.py 13 passed，CLI 正常",
-      "output": "demo 完成: completeness=0.95, validator_passed=True, elapsed=361ms",
+      "foundIssue": "R2 P0-2/P1-4：多 engine 实例重复加载 — 已转派 G2-sbapi 修复（共享 engine 注入）",
+      "output": "demo 完成: completeness=0.95, validator_passed=True, elapsed=337ms",
       "files": [
         "src/demo.py"
       ],
-      "updatedAt": "2026-08-09T13:38:49.312046+08:00",
+      "updatedAt": "2026-08-09T13:58:03.923027+08:00",
       "fixedBy": "G2-sbapi (session-260809-tidy-tide)"
     },
     "G17-test": {
