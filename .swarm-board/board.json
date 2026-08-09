@@ -3,8 +3,8 @@
     "id": "goai-adaptation",
     "goal": "SelfBrain-GOAI 适配（18执行Agent + 2Review，6 Wave，8.16初赛提交）",
     "status": "running",
-    "wave": 5,
-    "updated_at": "2026-08-09T14:00+08:00"
+    "wave": 6,
+    "updated_at": "2026-08-09T15:05+08:00"
   },
   "agents": {
     "G1-skeleton": {
@@ -196,12 +196,16 @@
       "updatedAt": "2026-08-09T15:03+08:00"
     },
     "G18-ppt": {
-      "sessionId": null,
+      "sessionId": "260809-ruby-hill",
       "module": "ppt",
-      "status": "pending",
+      "status": "done",
       "foundIssue": null,
-      "output": null,
-      "files": []
+      "output": "提交包产出完成：GOAI-COMPETITION-PACK.md（一句话介绍/赛道/架构总览+Mermaid/4大亮点/195tests-88%-0.95指标/快速复现/提交材料清单）+ GOAI-PPT-SLIDES.md（13页完整大纲 P1-P13 + 备选2页，含每页标题/要点/演讲备注，Mermaid 图验证通过）。所有数据均取自 TEST.md/REVIEW/guardian.py 实际代码。",
+      "files": [
+        "docs/GOAI-COMPETITION-PACK.md",
+        "docs/GOAI-PPT-SLIDES.md"
+      ],
+      "updatedAt": "2026-08-09T15:05+08:00"
     },
     "R1-arch-review": {
       "sessionId": "260809-smart-copper",
