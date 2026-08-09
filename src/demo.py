@@ -27,15 +27,10 @@ SelfBrain-GOAI 适配项目 · G16-demo
 
 from __future__ import annotations
 
-# Windows 控制台 UTF-8 兼容
-import io
-import sys
-if sys.platform == "win32":
-    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
-    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding="utf-8", errors="replace")
-
 import argparse
+import io
 import json
+import sys
 import time
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
@@ -45,6 +40,17 @@ from typing import Any, Dict, List, Optional, Tuple
 _SRC_DIR = Path(__file__).resolve().parent
 if str(_SRC_DIR) not in sys.path:
     sys.path.insert(0, str(_SRC_DIR))
+
+# ── [转派修复·G2-sbapi] @agent: session-260809-tidy-tide | module: sb-api | ts: 2026-08-09T13:38+08:00 ──
+# 模块级暴露 create_engine（测试 patch("demo.create_engine") 需要；
+# sb_api import 零副作用、不加载模型）。import 失败时置 None，行为与延迟导入等价。
+try:
+    from sb_api import create_engine  # noqa: E402
+    _SB_API_OK = True
+except ImportError:
+    create_engine = None  # type: ignore[assignment]
+    _SB_API_OK = False
+
 
 # ── 黑板路径 ─────────────────────────────────────────────────────────────────
 _BOARD_PATH = _SRC_DIR.parent / ".swarm-board" / "board.json"
@@ -103,14 +109,16 @@ def _try_create_engine(real_mode: bool) -> Tuple[Any, bool]:
     """
     if not real_mode:
         try:
-            from sb_api import create_engine
+            if not _SB_API_OK or create_engine is None:
+                raise ImportError("sb_api 不可用（create_engine 未导入）")
             return create_engine(), False
         except Exception as exc:
             print(f"  [WARN] stub 引擎创建失败: {exc}", file=sys.stderr)
             raise
     # real_mode
     try:
-        from sb_api import create_engine
+        if not _SB_API_OK or create_engine is None:
+            raise ImportError("sb_api 不可用（create_engine 未导入）")
         engine = create_engine()
         # 试探性调用一个轻量方法，确认模型可加载
         engine.decompose("test")
@@ -118,7 +126,8 @@ def _try_create_engine(real_mode: bool) -> Tuple[Any, bool]:
     except Exception as exc:
         print(f"  [WARN] 真实模型加载失败，降级为 stub 模式: {exc}", file=sys.stderr)
         try:
-            from sb_api import create_engine
+            if not _SB_API_OK or create_engine is None:
+                raise ImportError("sb_api 不可用（create_engine 未导入）")
             return create_engine(), False
         except Exception:
             raise
@@ -494,6 +503,23 @@ def main(argv: Optional[List[str]] = None) -> int:
     Returns:
         0 表示成功，非 0 表示失败。
     """
+    # ── [P0 修复·转派 G2-sbapi] @agent: session-260809-tidy-tide | module: sb-api | ts: 2026-08-09T13:40+08:00 ──
+    # 保存原始流引用（finally 恢复，幂等无害）
+    _orig_stdout, _orig_stderr = sys.stdout, sys.stderr
+
+    # Windows UTF-8 兼容（控制台 / 管道重定向 / pytest 均适用）。
+    # 修复说明：原实现用 TextIOWrapper 替换 sys.stdout，替换对象 GC 时会关闭底层
+    # buffer → pytest capture 损坏（"I/O operation on closed file"）；且 isatty 检查
+    # 会让管道重定向（非 TTY，GBK 编码）打印 ✓ 等字符时 UnicodeEncodeError。
+    # 改用 reconfigure()：不创建新 wrapper、不持有/关闭原 buffer，无 GC 风险，
+    # 从根上消除两类问题。无 reconfigure 的流（如 io.StringIO）自动跳过。
+    if sys.platform == "win32":
+        try:
+            sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+            sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+        except (AttributeError, ValueError, io.UnsupportedOperation):
+            pass
+
     parser = argparse.ArgumentParser(
         description="SelfBrain-GOAI 端到端演示",
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -636,6 +662,9 @@ def main(argv: Optional[List[str]] = None) -> int:
         return 1
 
     finally:
+        # [P0 修复·转派 G2-sbapi] 恢复原始 stdout/stderr（幂等；reconfigure 未替换对象）
+        sys.stdout, sys.stderr = _orig_stdout, _orig_stderr
+
         # 显存安全：释放所有模型
         try:
             from sb_api import create_engine as _create_engine
