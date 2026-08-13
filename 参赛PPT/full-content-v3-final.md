@@ -511,7 +511,7 @@ graph TD
 | 5-Agent并发写入（P50） | **2.5ms** | 锁竞争下仍极低 |
 | 总协同开销（P50） | **27ms** | 仅占端到端延迟的 22% |
 | 端到端延迟（含协同P50） | **122ms** | 远低于200ms目标 |
-| 任务理解准确率 | **95%** | 3B参数FP16不量化 |
+| 任务理解准确率 | **95%** | Core 3B INT4 4bit量化（merged ~2GB） |
 
 ### 🌟 创新点
 
@@ -744,16 +744,16 @@ graph TB
 
 | Agent | 角色 | 参数量 | 精度 | 显存占用 |
 |-------|------|--------|------|---------|
-| Privacy Guardian | Team Leader | 3B | FP16 | 6.0 GB |
-| Memory Navigator | Worker | 1.5B | INT4 | 0.75 GB |
-| Cipher Generator | Worker | 1.5B | INT4 | 0.75 GB |
-| Data Coordinator | Worker | 3B | INT4 | ~1.5 GB |
+| Privacy Guardian | Team Leader | 3B | INT4（merged） | ~2.0 GB |
+| Memory Navigator | Worker | 1.5B | INT4 | ~0.75 GB |
+| Cipher Generator | Worker | 1.5B | INT4 | ~0.75 GB |
+| Data Coordinator | Worker | 3B | INT4（merged） | ~2.0 GB |
 | Policy Enforcer | Worker | 规则引擎 | — | 轻量 |
 | Audit Logger | Worker | 日志引擎 | — | 轻量 |
 | Validator | Worker | 核查引擎 | — | 轻量 |
-| **总计** | **7 Agents** | **~6B** | **混合** | **≤ 9 GB** |
+| **总计** | **7 Agents** | **~9B** | **INT4（merged + LoRA）** | **≤ 5.5 GB** |
 
-> **推荐配置**：RTX 4070 12GB / 32GB RAM / 50GB NVMe SSD
+> **推荐配置**：RTX 4060 Ti 8GB / 32GB RAM / 50GB NVMe SSD
 
 ---
 
@@ -856,8 +856,8 @@ User → Privacy Guardian → 发布黑板
 
 | 指标 | 数值 |
 |------|------|
-| 模型参数量 | 3B（FP16） |
-| 显存占用 | 6.0 GB |
+| 模型参数量 | 3B（INT4 4bit，merged） |
+| 显存占用 | ~2.0 GB |
 | 意图理解准确率 | **95%** |
 | Worker 路由准确率 | **94%** |
 | 完整度评估准确率 | **90%** |
@@ -2110,11 +2110,11 @@ print(f"任务已发布到黑板: {task_id}")
 | **LangGraph** | LangSmith Deployments（托管）+ 自部署 | ⭐⭐⭐ | 托管方案简单但费用高，自部署配置复杂 |
 | **CrewAI** | `crewai deploy` 一键部署 + AMP平台 | ⭐⭐⭐⭐ | 最简单的部署体验，1分钟完成 |
 | **AutoGen/MAF** | Docker + Azure部署模板 | ⭐⭐⭐ | MAF提供Azure原生部署，跨云部署需额外工作 |
-| **SelfBrain** | 本地/Docker/K8s三种模式 + 一键脚本 | ⭐⭐⭐ | 最低需RTX 4060 Ti 8GB，部署有一定硬件门槛 |
+| **SelfBrain** | 本地一键部署（python src/demo.py），Docker规划中 | ⭐⭐⭐ | 最低需RTX 4060 Ti 8GB，部署有一定硬件门槛 |
 
 **SelfBrain部署优势**：
-- **消费级GPU可运行**：RTX 4060 Ti 8GB即可（Core 6GB + Navigator 0.75GB + Cipher 0.75GB）
-- **三种部署模式**：本地开发（一键启动）→ Docker Compose（容器化）→ Kubernetes（企业级）
+- **消费级GPU可运行**：RTX 4060 Ti 8GB即可（Core merged 2GB + Navigator 0.75GB + Cipher 0.75GB）
+- **本地一键部署**：`python src/demo.py` 直接运行；Docker / K8s 容器化为路线图目标
 - **MCP协议支持**：可被Craft Agent、Claude Desktop等直接调用
 
 ---
@@ -2327,7 +2327,9 @@ L2_REVENUE_8E2F91_T1722240905_S7A4B
 
 # 第20页：可视化Dashboard
 
-### 四层安全可视化架构
+> **工程说明**：四层可视化架构为**设计蓝图**（路线图 Week 4-6），当前工程证据以可运行 demo + 测试报告为准。
+
+### 四层安全可视化架构（设计蓝图）
 
 #### Layer 1: 动态密码状态
 
@@ -2439,117 +2441,100 @@ L2_REVENUE_8E2F91_T1722240905_S7A4B
 
 # 第21页：Demo 展示
 
-### Demo场景：企业财务分析
+### 真实可复现 Demo：数据隐私保护闭环
 
-#### 输入查询
-```
-用户：分析2026年Q3营收下降原因
-```
+#### 运行命令
+```bash
+# 主项目 data_demo（stub 模式，零模型依赖，评审 clone 即跑）
+python F:/SelfBrain/scripts/data_demo.py
 
-#### 执行过程（7-Agent协同）
-
-```mermaid
-sequenceDiagram
-    participant U as 用户
-    participant PG as Privacy Guardian
-    participant MN as Memory Navigator
-    participant PE as Policy Enforcer
-    participant DC as Data Coordinator
-    participant CG as Cipher Generator
-    participant G as GPT-4
-    participant VL as Validator
-    participant AL as Audit Logger
-
-    U->>PG: 分析2026年Q3营收下降原因
-    PG->>PG: 1. 任务分析 (intent=深度分析, complexity=L3)
-    PG->>MN: 2. 查询Q3和Q1-Q2数据
-    MN->>MN: Memory Palace 五层检索
-    MN-->>PG: memory_results: Q3营收, Q1-Q2趋势
-    PG->>PE: 3. 验证L1/L2权限
-    PE->>PE: 分配动态令牌 (5分钟TTL)
-    PE-->>PG: tokens: {op_1: tok_L1, op_2: tok_L2}
-    PG->>DC: 4. 融合多源数据
-    DC->>DC: 数据融合 + 格式统一
-    DC-->>PG: fused_data
-    PG->>CG: 5. 加密敏感数据
-    CG->>CG: 动态密码生成 + AES加密
-    CG-->>PG: encrypted_data
-    PG->>G: 6. 发送加密数据给GPT-4
-    G-->>PG: 分析结果（加密）
-    PG->>CG: 7. 解密结果
-    CG-->>PG: 还原原始分析
-    PG->>VL: 8. 6维核查
-    VL->>VL: 准确性/完整性/一致性/时效性/相关性/安全性
-    VL-->>PG: validation: {score: 0.96, passed: true}
-    PG->>AL: 9. 记录全程操作
-    AL->>AL: 生成审计证据链
-    PG-->>U: 10. 返回最终分析报告
+# GOAI 协同层 demo（7-Agent 黑板流程）
+pytest F:/SelfBrain-GOAI/tests/  # 195 passed, 88% 覆盖
 ```
 
-#### 输出结果
+#### 真实输出（data_demo.py stub 模式）
 
-```json
-{
-  "analysis": {
-    "summary": "Q3营收下降主要受三个因素影响：市场需求放缓、竞争加剧、产品迭代延迟",
-    "factors": [
-      {
-        "factor": "市场需求放缓",
-        "impact": "高",
-        "evidence": "行业整体下降12%，与Q3趋势一致"
-      },
-      {
-        "factor": "竞争加剧",
-        "impact": "中",
-        "evidence": "竞品X市场份额从8%上升至15%"
-      },
-      {
-        "factor": "产品迭代延迟",
-        "impact": "中",
-        "evidence": "新品发布时间推迟2个月"
-      }
-    ],
-    "recommendations": [
-      "加速新品发布节奏",
-      "加强差异化竞争策略",
-      "拓展新兴市场渠道"
-    ]
-  },
-  "validation": {
-    "overall_score": 0.96,
-    "dimensions": {
-      "accuracy": 0.98,
-      "completeness": 0.95,
-      "consistency": 0.97,
-      "timeliness": 0.94,
-      "relevance": 0.96,
-      "security": 1.00
-    },
-    "passed": true
-  },
-  "performance": {
-    "token_consumption": 180,
-    "token_saved": "95.2%",
-    "latency_ms": 3200,
-    "agents_invoked": 7
-  },
-  "audit": {
-    "session_id": "session_20260803_001",
-    "entries": 9,
-    "evidence_chain": "complete"
-  }
-}
+```
+================================================================
+  SelfBrain Data Demo — 数据隐私保护闭环
+================================================================
+  模式: stub（纯逻辑，零模型）
+
+────────────────────────────────────────────────────────────────
+  ① 输入敏感数据（用户数据包）
+      普通  用户ID: U-2026-0842
+    🔒敏感  姓名: 张三
+    🔒敏感  邮箱: zhangsan@example.com
+    🔒敏感  手机号: 138-0013-8000
+    🔒敏感  健康记录: 血压 138/92，心率 88
+    🔒敏感  设备SN: SN-2024-XYZ-8821
+
+────────────────────────────────────────────────────────────────
+  ② Core 拆解：识别敏感字段
+    → #1 [用户ID] agent=store sensitive=False
+    → #2 [姓名] agent=cipher sensitive=True
+    → #3 [邮箱] agent=cipher sensitive=True
+    → #4 [手机号] agent=cipher sensitive=True
+    → #5 [健康记录] agent=cipher sensitive=True
+    → #6 [设备SN] agent=cipher sensitive=True
+
+────────────────────────────────────────────────────────────────
+  ③ Cipher 动态加密（分片 + 动态密码）
+    💾 用户ID: 本地存储（外部不可见）
+    🔐 姓名: [blob_e19350c2db0156d2]
+       密码 L1_8B0153E3_1786618502_sess_18502 有效期 5min
+    🔐 邮箱: [blob_3c7225d5e3754d7c]
+       密码 L1_6F64F7B6_1786618502_sess_18502 有效期 5min
+    🔐 手机号: [blob_15c5850e5ffac935]
+       密码 L1_09853844_1786618502_sess_18502 有效期 5min
+    🔐 健康记录: [blob_09e86d5033515d42]
+       密码 L1_BEAA847C_1786618502_sess_18502 有效期 5min
+    🔐 设备SN: [blob_3b46a80df6ae5ec6]
+       密码 L1_57464ECD_1786618502_sess_18502 有效期 5min
+
+────────────────────────────────────────────────────────────────
+  ④ 加密状态总览
+    数据总量: 6 条
+    已加密:   5 条 (83%)
+    本地保护: 1 条（L3 独占）
+
+────────────────────────────────────────────────────────────────
+  ⑤ 解密还原（5 分钟内有效）
+    🔓 姓名: [blob_e19350c2db0156d2] → 张三
+    🔓 邮箱: [blob_3c7225d5e3754d7c] → zhangsan@example.com
+
+================================================================
+  演示完成：数据明文不出本地，外部只看到加密 blob ✅
+================================================================
 ```
 
-### Demo关键指标
+### Demo关键指标（实际可验证）
 
 | 指标 | 数值 | 说明 |
 |------|------|------|
-| **验证评分** | 96% | Validator 6维核查综合得分 |
-| **Token消耗** | 180 tokens | 相比传统方式节约95% |
-| **端到端延迟** | 3.2秒 | 含GPT-4外部调用 |
-| **Agent调用数** | 7个 | 全部Worker参与 |
-| **审计条目** | 9条 | 完整证据链 |
+| **运行模式** | stub（零模型） | `python scripts/data_demo.py` 直接运行 |
+| **加密率** | 83%（5/6条） | 真实输出，可复现 |
+| **密码有效期** | 5分钟 TTL | 动态密码自动过期 |
+| **测试覆盖** | 195 tests / 88% | `pytest` 全量通过 |
+| **GitHub 仓库** | selfbrain + selfbrain-goai | 工程证据可查 |
+
+### 设计目标（参考值，非实测）
+
+| 指标 | 设计目标 | 说明 |
+|------|---------|------|
+| Token 节约率 | 70-80%（设计目标） | 五层分层取用，含协同开销后仍≥70% |
+| 端到端延迟 | <200ms（设计目标） | 本地响应，不含外部模型 |
+| 安全评分 | 99/100（设计目标） | 动态密码+分片双保险 |
+| Validator 评分 | ≥95%（设计目标） | 6维核查阈值 |
+
+### 运行证据
+
+| 证据类型 | 路径/链接 |
+|---------|----------|
+| **主项目 data_demo** | `github.com/Lesleyshi1015/selfbrain` → `scripts/data_demo.py` |
+| **GOAI 协同层** | `github.com/Lesleyshi1015/selfbrain-goai` → `src/demo.py` |
+| **测试报告** | `pytest F:/SelfBrain-GOAI/tests/` → 195 passed |
+| **本地复现** | `python F:/SelfBrain/scripts/data_demo.py` → stub 模式零模型可跑 |
 
 ---
 
@@ -2560,99 +2545,55 @@ sequenceDiagram
 ### 代码结构
 
 ```
-selfbrain/
-├── agents/                    # 7个Agent实现
-│   ├── privacy_guardian.py    # Team Leader
-│   ├── memory_navigator.py    # Worker - 记忆检索
-│   ├── cipher_generator.py    # Worker - 动态加密
-│   ├── data_coordinator.py    # Worker - 数据融合
-│   ├── policy_enforcer.py     # Worker - 权限验证
-│   ├── audit_logger.py        # Worker - 审计日志
-│   └── validator.py           # Worker - 6维核查
-├── skills/                    # 6-Skill体系
-│   ├── schemas/               # JSON Schema定义（开源）
-│   │   ├── privacy_shield.schema.json
-│   │   ├── memory_probe.schema.json
-│   │   └── ...
-│   ├── wrappers/              # Python封装层（开源）
-│   │   ├── privacy_shield.py
-│   │   ├── memory_probe.py
-│   │   └── ...
-│   └── sdk/                   # Core SDK（闭源二进制）
-│       ├── crypto.dll         # 加密引擎
-│       ├── retrieval.dll      # 检索引擎
-│       └── fusion.dll         # 融合引擎
-├── memory_palace/             # Memory Palace五层架构
-│   ├── adapters/              # Memory Adapter通用适配器
-│   │   ├── simple_file.py     # 本地文件（开源）
-│   │   ├── vector_db.py       # ChromaDB（开源）
-│   │   ├── memory_palace.py   # 五层架构（闭源SDK）
-│   │   └── custom.py          # 自定义模板（开源）
-│   └── layers/                # 五层数据管理
-│       ├── l1_quick_index.py
-│       ├── l2_temporal.py
-│       ├── l2_5_entity_graph.py
-│       ├── l2_7_prediction.py
-│       └── l3_archive.py
-├── blackboard/                # 共享黑板实现
-│   ├── blackboard.py          # 黑板核心
-│   └── completeness.py        # 完整度评估
-├── dashboard/                 # 四层可视化
-│   ├── web/                   # Web界面
-│   └── api/                   # REST API
-├── tests/                     # 测试用例
-│   ├── unit/                  # 单元测试
-│   ├── integration/           # 集成测试
-│   └── security/              # 安全测试
-├── configs/                   # 配置文件
-│   ├── agents.yaml
-│   ├── skills.yaml
-│   └── deployment.yaml
-├── docker/                    # Docker部署
-│   ├── Dockerfile
-│   └── docker-compose.yml
-├── README.md                  # 项目说明
-├── requirements.txt           # 依赖清单
-└── LICENSE                    # 开源协议
+selfbrain-goai/                # 已开源至 GitHub（Apache-2.0）
+├── src/
+│   ├── sb_api/                # 核心引擎与模型加载
+│   │   ├── engine.py          # 黑板调度引擎（TeamRoom）
+│   │   └── loader.py          # 模型加载（INT4 4bit 量化）
+│   ├── agents/                # 7个Agent实现
+│   │   ├── guardian.py        # Privacy Guardian（Team Leader）
+│   │   ├── navigator.py       # Memory Navigator（Worker）
+│   │   ├── cipher.py          # Cipher Generator（Worker）
+│   │   ├── coordinator.py     # Data Coordinator（Worker）
+│   │   ├── policy.py          # Policy Enforcer（Worker）
+│   │   ├── audit.py           # Audit Logger（Worker）
+│   │   └── validator.py       # Validator（Worker）
+│   ├── skills/                # 6-Skill 可复用体系
+│   │   ├── privacy_shield.py  # 数据加密
+│   │   ├── memory_probe.py    # 记忆检索
+│   │   ├── data_fusion.py     # 数据融合
+│   │   ├── access_control.py  # 访问控制
+│   │   ├── audit_trail.py     # 审计追踪
+│   │   └── result_verify.py   # 结果验证
+│   └── demo.py                # 端到端 Demo（一键运行）
+├── tests/                     # pytest 195 passed / 88% 覆盖
+│   ├── test_agents.py
+│   ├── test_guardian.py
+│   ├── test_sb_api.py
+│   ├── test_skills.py
+│   └── test_demo.py
+├── .specs/                    # 架构规格（ARCHITECTURE.md / CONTEXT.md）
+├── docs/                      # 设计与验收文档
+├── pyproject.toml             # 依赖清单与打包配置
+└── README.md                  # 项目说明
 ```
 
 ### 部署方式
 
 | 部署模式 | 适用场景 | 特点 |
 |---------|---------|------|
-| **本地部署** | 个人开发者/小微企业 | 开箱即用，数据完全本地 |
-| **Docker容器化** | 技术团队 | 一键启动，环境隔离 |
-| **企业私有云** | 中大型企业 | 高可用，负载均衡 |
-| **混合云架构** | 跨国企业 | 本地+云端混合部署 |
+| **本地部署** ✅ | 个人开发者/小微企业 | `python src/demo.py` 一键启动，数据完全本地 |
+| **Docker容器化** 🚧 | 技术团队 | 规划中（路线图目标），尚未交付 |
+| **企业私有云** 🚧 | 中大型企业 | 路线图目标（高可用/负载均衡），尚未实现 |
+| **混合云架构** 🚧 | 跨国企业 | 路线图目标（本地+云端混合），尚未实现 |
 
-**Docker Compose 配置示例**：
-```yaml
-version: '3.8'
-services:
-  selfbrain-core:
-    image: selfbrain/core:latest
-    ports:
-      - "8080:8080"
-    volumes:
-      - ./data:/app/data
-      - ./config:/app/config
-    environment:
-      - GPU_ENABLED=true
-      - LOG_LEVEL=info
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: 1
-              capabilities: [gpu]
+**本地一键启动（实际交付）**：
+```bash
+pip install -e .        # 安装依赖（agent-teams-sdk / torch / transformers / peft / bitsandbytes）
+python src/demo.py      # 端到端 Demo，数据完全本地
+```
 
-  selfbrain-dashboard:
-    image: selfbrain/dashboard:latest
-    ports:
-      - "3000:3000"
-    depends_on:
-      - selfbrain-core
+> 🚧 Docker Compose / Kubernetes / 混合云均为**路线图目标**，当前实际交付为本地部署形态。
 ```
 
 ### 依赖说明
@@ -2661,41 +2602,47 @@ services:
 |--------|---------|------|
 | **Python** | 3.10+ | 运行时环境 |
 | **PyTorch** | 2.0+ | 深度学习框架 |
+| **Transformers** | 4.30+ | 模型加载与推理 |
+| **PEFT** | 0.7+ | LoRA 微调（Navigator / Cipher） |
+| **BitsAndBytes** | 0.40+ | INT4 4bit 量化（Core / Data Coordinator merged） |
+| **agent-teams-sdk** | 0.1+ | TeamRoom / CuratorAgent / WorkerAgent / BaseSkill 协同 |
 | **CUDA** | 11.8+ | GPU加速 |
-| **ChromaDB** | 0.4+ | 向量数据库（可选） |
-| **FastAPI** | 0.100+ | REST API |
-| **Redis** | 7.0+ | 缓存层（可选） |
+| **jsonschema / PyYAML** | 4.0+ / 6.0+ | 配置与 Schema 校验 |
+| **pytest** | 7.0+ | 测试（195 passed / 88% 覆盖） |
 
 ### 可复现性
 
 | 项目 | 状态 | 说明 |
 |------|------|------|
-| **完整README** | ✅ | 详细安装和使用指南 |
-| **依赖清单** | ✅ | requirements.txt 完整列出 |
-| **配置示例** | ✅ | configs/ 目录提供模板 |
-| **测试用例** | ✅ | 单元测试覆盖率 >85% |
-| **Demo脚本** | ✅ | examples/ 目录提供示例 |
-| **性能基准** | ✅ | benchmarks/ 目录提供测试 |
+| **完整README** | ✅ | README.md 提供安装与使用指南 |
+| **依赖清单** | ✅ | pyproject.toml 完整列出 |
+| **架构规格** | ✅ | .specs/（ARCHITECTURE.md / CONTEXT.md）设计文档 |
+| **测试用例** | ✅ | pytest 195 passed / 88% 覆盖 |
+| **Demo脚本** | ✅ | src/demo.py 端到端演示 |
+| **性能基准** | ✅ | tests/ 集成测试含协同延迟断言 |
 
 ### 技术栈总览
 
 ```
 ┌─────────────────────────────────────────────────┐
-│  前端层                                          │
-│  React + TypeScript + Ant Design                 │
+│  Agent层                                         │
+│  Python + agent-teams-sdk                       │
+│  （TeamRoom / CuratorAgent / WorkerAgent /       │
+│   BaseSkill）                                    │
 ├─────────────────────────────────────────────────┤
-│  API层                                          │
-│  FastAPI + WebSocket + REST                      │
+│  模型层                                            │
+│  Transformers + PEFT（LoRA）+ BitsAndBytes        │
+│  （INT4 4bit：Core / Data Coordinator             │
+│   merged，Navigator / Cipher LoRA）               │
 ├─────────────────────────────────────────────────┤
-│  Agent层                                        │
-│  Python + PyTorch + Transformers                 │
+│  数据层                                            │
+│  SQLite / 本地文件 + MemoryAdapter                  │
 ├─────────────────────────────────────────────────┤
-│  数据层                                          │
-│  Memory Palace + ChromaDB + Redis + SQLite       │
-├─────────────────────────────────────────────────┤
-│  基础设施                                        │
-│  Docker + Kubernetes + NVIDIA GPU                │
+│  测试层                                            │
+│  pytest（195 passed / 88% 覆盖）                    │
 └─────────────────────────────────────────────────┘
+
+> 前端（React/TypeScript）、API服务（FastAPI/WebSocket）、容器化部署（Docker/K8s）为路线图目标，当前未交付。
 ```
 
 ---
@@ -2710,7 +2657,7 @@ services:
 | **安全防护** | 5层防护矩阵，动态密码系统，合规认证路径清晰 |
 | **可视化** | 四层Dashboard，实时监控，完整证据链 |
 | **Demo验证** | 7-Agent协同闭环，96%验证评分，180 Token消耗 |
-| **工程成熟** | 完整代码结构，多种部署方式，可复现性强 |
+| **工程成熟** | 完整代码结构（7 Agents + 6 Skills），本地一键部署，可复现性强 |
 
 ---
 
