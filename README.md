@@ -70,3 +70,43 @@ SelfBrain/
 ## 许可证
 
 待定
+
+---
+
+## GOAI 初赛提交说明
+
+> GOAI 新智基座 | AgentInfra 赛道初赛可执行代码包。
+
+### 运行入口
+
+```bash
+pip install -e .            # 安装（框架内置）
+python src/demo.py          # 运行 Demo（stub 引擎，无需闭源核心）
+pytest                      # 运行全部测试
+```
+
+### 依赖
+
+- Python >= 3.10
+- 内置 agent_teams_sdk 框架（本仓库包含）
+- 闭源引擎可选：`SB_SELFBRAIN_SRC` 环境变量注入主项目源码路径
+
+### 样例输入输出
+
+Demo 展示隐私保护多 Agent 协同闭环：用户请求 → Privacy Guardian 发布任务到黑板 → Workers（Memory Navigator / Cipher Generator 等）分工执行 → Validator 核查 → 整合返回。
+
+### 运行证据
+
+```
+pytest
+# 195 passed, 88% coverage
+```
+
+### 黑盒说明
+
+本仓库**不包含**核心引擎源码与模型权重（MEMO 微调模型 / 主项目 src）。评审运行 Demo 和测试无需闭源引擎：stub 模式零模型加载零推理；`--real` 模式通过 `SB_SELFBRAIN_SRC` 注入真实引擎，加载失败优雅降级回 stub。
+
+### 品牌
+
+- 对外品牌：**SelfBrain**
+- 技术包名：selfbrain-goai
