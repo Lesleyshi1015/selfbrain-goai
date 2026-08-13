@@ -41,8 +41,9 @@ class TestMemoryNavigator:
 
     @pytest.fixture
     def nav(self, team_room, engine_stub):
-        n = MemoryNavigator("G4-navigator", team_room)
-        n._engine = engine_stub
+        # [G2-sbapi] @agent: session-260809-tidy-tide | module: tests | ts: 2026-08-13T20:41+08:00
+        # 构造注入 engine（替代属性替换）：backend 缺省复用 engine，检索经 backend 透传
+        n = MemoryNavigator("G4-navigator", team_room, engine=engine_stub)
         return n
 
     def test_do_work_reads_query_and_writes_result(self, nav, team_room, engine_stub):
