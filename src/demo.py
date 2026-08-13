@@ -141,6 +141,7 @@ def _run_workers(
     team_room: Any,
     engine: Any,
     real_mode: bool,
+    backend_mode: str = "sbapi",
 ) -> Dict[str, Any]:
     """
     依次执行各 Worker Agent，将结果写回黑板。
@@ -156,6 +157,8 @@ def _run_workers(
         team_room: TeamRoom 实例。
         engine: SBEngine 实例。
         real_mode: 是否真实模式（影响日志输出）。
+        backend_mode: 记忆检索后端（"sbapi" | "timeweave"，默认 "sbapi"）。
+            "timeweave" 时注入 TimeWeaveBackend（stub 零依赖），加载失败降级为 sbapi。
 
     Returns:
         各 Worker 执行结果字典 {worker_name: result}。
@@ -171,9 +174,25 @@ def _run_workers(
 
     # 1. Navigator
     print(f"  [{mode_tag}] MemoryNavigator 执行记忆检索...")
-    # [转派修复·G2-sbapi] @agent: session-260809-tidy-tide | module: demo | ts: 2026-08-09T13:58+08:00
-    # R2 P0-2/P1-4：注入共享 engine，避免真实模式多实例重复加载模型、unload 不协调
-    nav = MemoryNavigator("G4-navigator", team_room, engine)
+    # [G2-sbapi] @agent: session-260809-tidy-tide | module: demo | ts: 2026-08-13T20:46+08:00
+    # 记忆后端热插拔：--backend timeweave 时注入 TimeWeaveBackend（stub），
+    # 加载失败优雅降级为 sbapi（不注入 backend，保持现状 SBAPIBackend）
+    nav_backend = None
+    if backend_mode == "timeweave":
+        try:
+            _tw_path = "F:/memory-palace-goai"
+            if _tw_path not in sys.path:
+                sys.path.insert(0, _tw_path)
+            from memory_palace_goai.memory_backend import TimeWeaveBackend
+            nav_backend = TimeWeaveBackend(service_mode="stub")  # stub 零依赖
+            print(f"  [INFO] 已加载 TimeWeave 记忆后端（stub 模式）")
+        except Exception as exc:
+            nav_backend = None
+            print(
+                f"  [WARN] TimeWeaveBackend 加载失败，降级为 sbapi 后端: {exc}",
+                file=sys.stderr,
+            )
+    nav = MemoryNavigator("G4-navigator", team_room, engine, nav_backend)
     results["navigator"] = nav.execute({"action": "work"})
     print(f"    → status={results['navigator'].get('status')}")
 
@@ -542,16 +561,24 @@ def main(argv: Optional[List[str]] = None) -> int:
         action="store_true",
         help="真实模式：尝试加载真实模型（失败则降级为 stub）",
     )
+    parser.add_argument(
+        "--backend",
+        choices=["sbapi", "timeweave"],
+        default="sbapi",
+        help="记忆检索后端：sbapi（默认，SelfBrain 引擎）| timeweave（TimeWeave 引擎，热插拔演示）",
+    )
 
     args = parser.parse_args(argv)
     query: str = args.query
     real_mode: bool = args.real
+    backend_mode: str = args.backend
 
     print("=" * 60)
     print("  SelfBrain-GOAI 端到端演示")
     print("=" * 60)
     print(f"  查询: {query}")
     print(f"  模式: {'real' if real_mode else 'stub'}")
+    print(f"  记忆后端: {backend_mode}")
     print()
 
     # 更新黑板：开始
@@ -583,7 +610,7 @@ def main(argv: Optional[List[str]] = None) -> int:
 
         # 3. 执行 Workers
         print("> 步骤 3: 执行 Worker Agents...")
-        worker_results = _run_workers(room, engine, real_mode)
+        worker_results = _run_workers(room, engine, real_mode, backend_mode)
         print("  ✓ 所有 Workers 执行完成")
         print()
 

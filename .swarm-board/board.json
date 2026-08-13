@@ -4,7 +4,7 @@
     "goal": "SelfBrain-GOAI 适配（18执行Agent + 2Review，6 Wave，8.16初赛提交）",
     "status": "running",
     "wave": 6,
-    "updated_at": "2026-08-13T20:41+08:00"
+    "updated_at": "2026-08-13T20:46+08:00"
   },
   "agents": {
     "G1-skeleton": {
@@ -26,7 +26,7 @@
       "module": "sb_api/bridge",
       "status": "done",
       "foundIssue": null,
-      "output": "sb_api 桥接层完成：loader.py 路径注入+统一加载入口、engine.py SBEngine 8 方法 stub（统一 envelope，零模型加载）、__init__.py 导出+create_engine。import 验证通过，冒烟测试全绿（torch 未 import） | 转派修复 G16：src/demo.py stdout 包装（P0）— reconfigure 方案根治，pytest 13 passed + demo CLI 正常 | 转派修复 G17：5 处测试断言（195 passed/0 failed/88% 覆盖），TEST.md 已产出 | 转派修复 R2 P0：navigator 空查询 error envelope（P0-3）+ 共享 engine 注入（P0-2/P1-4，demo/navigator/cipher），pytest 195 passed + demo 正常 | memory_backend 热插拔接口完成：MemoryBackend(ABC) + SBAPIBackend 默认实现，navigator 支持 backend 注入，pytest 198 passed（原 195 全保留+3 新增），demo 完整度 0.95 不变",
+      "output": "sb_api 桥接层完成：loader.py 路径注入+统一加载入口、engine.py SBEngine 8 方法 stub（统一 envelope，零模型加载）、__init__.py 导出+create_engine。import 验证通过，冒烟测试全绿（torch 未 import） | 转派修复 G16：src/demo.py stdout 包装（P0）— reconfigure 方案根治，pytest 13 passed + demo CLI 正常 | 转派修复 G17：5 处测试断言（195 passed/0 failed/88% 覆盖），TEST.md 已产出 | 转派修复 R2 P0：navigator 空查询 error envelope（P0-3）+ 共享 engine 注入（P0-2/P1-4，demo/navigator/cipher），pytest 195 passed + demo 正常 | memory_backend 热插拔接口完成：MemoryBackend(ABC) + SBAPIBackend 默认实现，navigator 支持 backend 注入，pytest 198 passed（原 195 全保留+3 新增），demo 完整度 0.95 不变 | demo --backend 联调完成：sbapi/timeweave 双模式跑通（均完整度 0.95 + Validator passed），TimeWeave stub 返回 3 条记忆，pytest 198 passed",
       "files": [
         "src/sb_api/loader.py",
         "src/sb_api/engine.py",
@@ -47,7 +47,7 @@
       "files": [
         "src/agents/guardian.py"
       ],
-      "updatedAt": "2026-08-13T20:45:41.749795"
+      "updatedAt": "2026-08-13T20:51:38.631938"
     },
     "G4-navigator": {
       "sessionId": "260809-new-elk",
@@ -64,7 +64,7 @@
       "sessionId": "260809-dynamic-plateau",
       "module": "agents/cipher",
       "status": "done",
-      "output": "CipherGenerator 完成：status=pending, component=cipher, action=pending(Wave2)",
+      "output": "CipherGenerator 完成：status=<MagicMock name='mock.cipher_analyze().get()' id='2574844319728'>, component=<MagicMock name='mock.cipher_analyze().get()' id='2574844319728'>, action=<MagicMock name='mock.cipher_analyze().get().get()' id='2574844320400'>",
       "files": [
         "src/agents/cipher.py"
       ]
@@ -174,11 +174,11 @@
       "module": "demo",
       "status": "done",
       "foundIssue": null,
-      "output": "demo 完成: completeness=0.95, validator_passed=True, elapsed=360ms",
+      "output": "demo 完成: completeness=0.95, validator_passed=True, elapsed=549ms",
       "files": [
         "src/demo.py"
       ],
-      "updatedAt": "2026-08-13T20:45:43.616964+08:00",
+      "updatedAt": "2026-08-13T20:51:33.213228+08:00",
       "fixedBy": "G2-sbapi (session-260809-tidy-tide)"
     },
     "G17-test": {
