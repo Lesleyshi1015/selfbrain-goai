@@ -120,7 +120,7 @@
 
 ---
 
-#### 选择A：使用外部大模型（GPT-4 / Claude / Gemini）
+#### 选择A：使用外部大模型（GPT-5.6 / Claude / Gemini）
 
 | ✅ 好处 | ❌ 风险 |
 |---------|---------|
@@ -139,7 +139,7 @@
 |---------|---------|
 | 数据**100%不出本地** | GPU集群投入**百万级**（A100×8起步） |
 | 满足最严格的合规要求 | 需要**专职AI团队**（3-5人，年薪百万+） |
-| 可深度定制 | 开源模型能力**永远落后**于GPT-4/Claude |
+| 可深度定制 | 开源模型能力**永远落后**于GPT-5.6/Claude |
 | 完全自主可控 | 模型每3个月迭代一次，**永远在追赶** |
 
 > 🔴 **结果**：安全做到了，但**用不起、追不上、养不起团队**
@@ -151,7 +151,7 @@
 ```
 ┌────────────────────────────────────────────────────────────────┐
 │                                                                │
-│   用外部最强模型（GPT-4/Claude/Gemini）                         │
+│   用外部最强模型（GPT-5.6/Claude/Gemini）                         │
 │         ＋                                                     │
 │   把隐私留在自己手上                                            │
 │         ＝                                                     │
@@ -162,9 +162,9 @@
 
 **怎么做到的？**
 
-7个AI Agent协同工作——你的数据在发送给GPT-4之前，**自动加密、分片、打散**。GPT-4只看到密文，你拿到明文结果。银行U盾级别的动态密码，5分钟自动过期。
+7个AI Agent协同工作——你的数据在发送给GPT-5.6之前，**自动加密、分片、打散**。GPT-5.6只看到密文，你拿到明文结果。银行U盾级别的动态密码，5分钟自动过期。
 
-> 🟢 **一句话**：GPT-4帮你干活，但**它永远不知道你的客户叫什么名字**。
+> 🟢 **一句话**：GPT-5.6帮你干活，但**它永远不知道你的客户叫什么名字**。
 
 ---
 
@@ -224,7 +224,7 @@
 │                                                              │
 │   外部模型的能力  ×  本地部署的隐私  ×  70-80%成本节约        │
 │                                                              │
-│   GPT-4帮你干活，但它永远不知道你的数据是什么。               │
+│   GPT-5.6帮你干活，但它永远不知道你的数据是什么。               │
 │                                                              │
 └──────────────────────────────────────────────────────────────┘
 ```
@@ -265,7 +265,7 @@
 
 ## 创新2：动态密码 + 架构分片双保险 — 首创AI数据安全方案
 
-**解决的问题**：现有Agent框架将明文数据直接发送给GPT-4/Claude，敏感信息完全暴露，无任何保护机制。
+**解决的问题**：现有Agent框架将明文数据直接发送给GPT-5.6/Claude，敏感信息完全暴露，无任何保护机制。
 
 **技术突破**：
 - **动态密码系统**：类银行U盾，CSPRNG生成一次性密码，5分钟TTL自动过期，会话级隔离
@@ -556,7 +556,7 @@ graph TD
 
 ### 🔴 为什么难？
 
-AI系统的核心成本瓶颈：**Token消耗与上下文长度成正比**。当用户数据累积到数万条时，将全量数据发送给GPT-4一次查询就消耗3万Token（约$0.9），月度成本轻松突破$20,000。行业现状是"要么忍受高成本，要么丢弃历史数据损失精度"。
+AI系统的核心成本瓶颈：**Token消耗与上下文长度成正比**。当用户数据累积到数万条时，将全量数据发送给GPT-5.6一次查询就消耗3万Token（约$0.9），月度成本轻松突破$20,000。行业现状是"要么忍受高成本，要么丢弃历史数据损失精度"。
 
 ### 💡 突破方案：五层分层取用 + 智能Token预算器
 
@@ -580,7 +580,7 @@ AI系统的核心成本瓶颈：**Token消耗与上下文长度成正比**。当
 | 成本对比 | 优化前 | 优化后（含7-Agent开销） | 节约 |
 |---------|--------|------------------------|------|
 | 月均Token（日均1000次） | 672M | 181.8M | **72.9%** |
-| 月均API成本（GPT-4） | $20,160 | $3,275 | **$16,885/月 (84%)** |
+| 月均API成本（GPT-5.6） | $20,160 | $3,275 | **$16,885/月 (84%)** |
 
 ### 🌟 创新点
 
@@ -847,7 +847,7 @@ User → Privacy Guardian → 发布黑板 → Memory Navigator → 返回
 User → Privacy Guardian → 发布黑板
   → Memory Navigator + Cipher Generator + Data Coordinator
   → Policy Enforcer（权限验证）
-  → Cipher（加密）→ GPT-4（分析）→ Cipher（解密）
+  → Cipher（加密）→ GPT-5.6（分析）→ Cipher（解密）
   → Validator（6维核查）→ Audit Logger（记录）
   → Privacy Guardian（整合）→ 返回
 ```
@@ -1020,7 +1020,7 @@ sequenceDiagram
     participant PG as Privacy Guardian
     participant CG as Cipher Generator
     participant BB as 共享黑板
-    participant GPT as GPT-4
+    participant GPT as GPT-5.6
 
     PG->>BB: 读取 memory_results
     PG->>CG: 加密敏感数据
@@ -1028,7 +1028,7 @@ sequenceDiagram
     CG->>CG: 生成动态密码
     CG->>BB: 写入 encrypted_data + password_book
     PG->>BB: 读取 encrypted_data
-    PG->>GPT: 发送加密数据（GPT-4看不到原始数据）
+    PG->>GPT: 发送加密数据（GPT-5.6看不到原始数据）
     GPT-->>PG: 返回分析结果（加密态）
     PG->>CG: 解密结果
     CG->>BB: 读取 password_book
@@ -1127,7 +1127,7 @@ class PolicyEnforcer:
 
 **权限矩阵**：
 
-| 层级 | GPT-4 | Claude | SelfBrain | 加密要求 |
+| 层级 | GPT-5.6 | Claude | SelfBrain | 加密要求 |
 |------|-------|--------|-----------|---------|
 | **L1** 立体检索 | ✅ | ✅ | ✅ | ❌ |
 | **L2** 时序管理 | ✅ | ✅ | ✅ | ✅ |
@@ -1227,7 +1227,7 @@ sequenceDiagram
     participant PE as Policy Enforcer
     participant AL as Audit Logger
     participant VL as Validator
-    participant G as GPT-4
+    participant G as GPT-5.6
 
     U->>PG: "分析Q3营收下降原因"
     Note over PG: 1.任务分析<br/>intent=深度分析 complexity=L3
@@ -1246,7 +1246,7 @@ sequenceDiagram
     CG->>BB: 写入 encrypted_data + password_book
     PG->>AL: 记录操作日志
     AL->>BB: 写入 audit_entries
-    Note over PG: 4.GPT-4分析（加密态）
+    Note over PG: 4.GPT-5.6分析（加密态）
     PG->>BB: 读取 encrypted_data
     PG->>G: 发送加密数据
     G-->>PG: 返回分析结果
@@ -2064,7 +2064,7 @@ print(f"任务已发布到黑板: {task_id}")
 | 复杂推理 | 30,000 | 8,000 | **73%** |
 | **加权平均** | **22,400** | **6,060**（含协同开销） | **72.9%** |
 
-> 💡 **成本影响**：按日均1000次查询、GPT-4定价计算，SelfBrain月成本约$3,275，传统方案约$20,160，**年节约$16,885**。
+> 💡 **成本影响**：按日均1000次查询、GPT-5.6定价计算，SelfBrain月成本约$3,275，传统方案约$20,160，**年节约$16,885**。
 
 ---
 
@@ -2303,7 +2303,7 @@ L2_REVENUE_8E2F91_T1722240905_S7A4B
 
 ### 五层权限矩阵
 
-| 数据层级 | GPT-4 | Claude | SelfBrain | 加密要求 |
+| 数据层级 | GPT-5.6 | Claude | SelfBrain | 加密要求 |
 |---------|-------|--------|-----------|---------|
 | **L1** 立体检索 | ✅ | ✅ | ✅ | ❌ 不加密 |
 | **L2** 时序管理 | ✅ | ✅ | ✅ | ✅ 需加密 |
@@ -2360,11 +2360,11 @@ L2_REVENUE_8E2F91_T1722240905_S7A4B
 ├─────────────────────────────────────────────────┤
 │  当前会话：session_20260803_001                  │
 │                                                  │
-│  L1 立体检索  │ GPT-4 ✅ │ Claude ✅ │ 未加密   │
-│  L2 时序管理  │ GPT-4 ✅ │ Claude ✅ │ 已加密   │
-│  L2.5 实体图谱│ GPT-4 ✅ │ Claude ✅ │ 已加密   │
-│  L2.7 预测层  │ GPT-4 ❌ │ Claude ❌ │ 仅SelfBrain│
-│  L3 完整归档  │ GPT-4 ❌ │ Claude ❌ │ 仅SelfBrain│
+│  L1 立体检索  │ GPT-5.6 ✅ │ Claude ✅ │ 未加密   │
+│  L2 时序管理  │ GPT-5.6 ✅ │ Claude ✅ │ 已加密   │
+│  L2.5 实体图谱│ GPT-5.6 ✅ │ Claude ✅ │ 已加密   │
+│  L2.7 预测层  │ GPT-5.6 ❌ │ Claude ❌ │ 仅SelfBrain│
+│  L3 完整归档  │ GPT-5.6 ❌ │ Claude ❌ │ 仅SelfBrain│
 │                                                  │
 │  ⚠️ 越权尝试：0次（过去24小时）                    │
 └─────────────────────────────────────────────────┘
@@ -2758,7 +2758,7 @@ python src/demo.py      # 端到端 Demo，数据完全本地
 ### 商业 API 支持
 
 SelfBrain 支持对接主流商业 AI API：
-- OpenAI GPT-4 / GPT-4o
+- OpenAI GPT-5.6 / GPT-5.6o
 - Anthropic Claude 3 / Claude 3.5
 - Google Gemini 2.0
 - 本地模型（无外部依赖，完全离线）
