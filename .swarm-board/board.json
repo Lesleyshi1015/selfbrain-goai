@@ -47,7 +47,7 @@
       "files": [
         "src/agents/guardian.py"
       ],
-      "updatedAt": "2026-08-13T20:51:38.631938"
+      "updatedAt": "2026-08-15T11:21:28.485321"
     },
     "G4-navigator": {
       "sessionId": "260809-new-elk",
@@ -64,7 +64,7 @@
       "sessionId": "260809-dynamic-plateau",
       "module": "agents/cipher",
       "status": "done",
-      "output": "CipherGenerator 完成：status=<MagicMock name='mock.cipher_analyze().get()' id='2574844319728'>, component=<MagicMock name='mock.cipher_analyze().get()' id='2574844319728'>, action=<MagicMock name='mock.cipher_analyze().get().get()' id='2574844320400'>",
+      "output": "CipherGenerator 完成：status=<MagicMock name='mock.cipher_analyze().get()' id='2186745370608'>, component=<MagicMock name='mock.cipher_analyze().get()' id='2186745370608'>, action=<MagicMock name='mock.cipher_analyze().get().get()' id='2186745371280'>",
       "files": [
         "src/agents/cipher.py"
       ]
@@ -231,6 +231,26 @@
         ".specs/02-goai-adapt/REVIEW-bug.md"
       ],
       "updatedAt": "2026-08-09T13:15:18.471742+08:00"
+    },
+    "S1-secret-clean": {
+      "sessionId": "260815-frosty-ember",
+      "module": "security/secret-clean",
+      "status": "done",
+      "foundIssue": null,
+      "output": "去机密完成：参赛PPT/(23文件)/docs//research/.specs内部文档 git 移除（本地保留），README/CHANGELOG/LESSONS 重写去机密（删 VibeThinker/Qwen2.5/MEMO 方法论），loader.py/demo.py/__init__.py/engine.py/test_sb_api.py 路径与模型名清理（SB_SELFBRAIN_SRC + MEMORY_PALACE_SRC 环境变量机制，去除 F:/ 硬编码），.gitignore 增 docs//research//参赛PPT//内部specs 排除，pytest 199 passed（原198全保留+1新增环境变量测试），git 索引敏感词全扫描 CLEAN，SECRET-CLEAN.md 已产出",
+      "files": [
+        "README.md",
+        "CHANGELOG.md",
+        "LESSONS.md",
+        ".gitignore",
+        "src/sb_api/loader.py",
+        "src/sb_api/__init__.py",
+        "src/sb_api/engine.py",
+        "src/demo.py",
+        "tests/test_sb_api.py",
+        ".specs/02-goai-adapt/SECRET-CLEAN.md"
+      ],
+      "updatedAt": "2026-08-15T11:20+08:00"
     }
   },
   "completeness": 0,

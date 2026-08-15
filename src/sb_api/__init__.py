@@ -2,8 +2,8 @@
 """
 sb_api — SelfBrain-GOAI 桥接层
 
-SelfBrain 主项目引擎（F:\\SelfBrain\\src，4 个已微调模型：
-core / navigator / cipher / broker）的**唯一访问入口**。
+SelfBrain 主项目引擎源码（含模型加载器 model_loader，路径由环境变量
+SB_SELFBRAIN_SRC 注入）的**唯一访问入口**。
 
 包结构：
     loader — 路径注入（sys.path）与模型加载统一入口

@@ -3,11 +3,12 @@
 sb_api.loader — SelfBrain 引擎桥接层（路径注入 + 模型加载统一入口）
 
 核心设计：
-    sb_api 是 SelfBrain-GOAI 对主项目引擎（F:\\SelfBrain\\src，含 4 个已微调模型
-    core / navigator / cipher / broker）的**唯一访问入口**。本模块通过 sys.path
-    注入方式加载主项目源码，并集中封装路径耦合。
+    sb_api 是 SelfBrain-GOAI 对主项目引擎源码（含模型加载器 model_loader）的
+    **唯一访问入口**。本模块通过 sys.path 注入方式加载引擎源码，并集中封装路径
+    耦合。引擎源码目录为本地路径示例（不随本仓库分发），实际路径通过环境变量
+    SB_SELFBRAIN_SRC 注入。
 
-    F:\\SelfBrain\\src 为只读引用（零修改），本模块只做：
+    引擎源码目录为只读引用（零修改），本模块只做：
         1. ensure_src_path() — 注入并校验源码路径（环境变量 SB_SELFBRAIN_SRC 可覆盖）
         2. 包装 model_loader 的 4 个加载函数 + unload（惰性导入，import 时不加载模型）
         3. 统一入口 load_component / unload_component / is_available
@@ -56,10 +57,25 @@ class ModelLoadError(SBAPIError):
 # 路径配置
 # ---------------------------------------------------------------------------
 
-_DEFAULT_SRC = "F:/SelfBrain/src"
+#: 默认引擎源码目录（本地路径示例，非真实路径，不随本仓库分发）。
+#: 生产环境请通过环境变量 SB_SELFBRAIN_SRC 指向实际引擎源码目录。
+_DEFAULT_SRC = "<selfbrain-engine-src>"
 
-#: SelfBrain 主项目源码目录（只读引用）。可用环境变量 SB_SELFBRAIN_SRC 覆盖。
-SRC_PATH: Path = Path(os.environ.get("SB_SELFBRAIN_SRC", _DEFAULT_SRC)).resolve()
+
+def _resolve_src_path() -> Path:
+    """解析引擎源码目录（可移植，可测试）。
+
+    优先取环境变量 SB_SELFBRAIN_SRC；未设置时回退到占位路径
+    （非真实目录，is_dir() 为 False，模块按不可用处理）。
+
+    Returns:
+        解析后的引擎源码目录 Path。
+    """
+    return Path(os.environ.get("SB_SELFBRAIN_SRC", _DEFAULT_SRC)).resolve()
+
+
+#: SelfBrain 主项目源码目录（只读引用）。默认占位路径，可用环境变量 SB_SELFBRAIN_SRC 覆盖。
+SRC_PATH: Path = _resolve_src_path()
 
 #: 组件名 → model_loader 加载函数名
 _LOADERS: dict[str, str] = {
@@ -100,7 +116,7 @@ __all__ = [
 def ensure_src_path() -> Path:
     """注入并校验 SelfBrain 源码路径（幂等）。
 
-    将 SRC_PATH（默认 F:/SelfBrain/src，环境变量 SB_SELFBRAIN_SRC 可覆盖）
+    将 SRC_PATH（默认占位路径，环境变量 SB_SELFBRAIN_SRC 可覆盖）
     插入 sys.path[0]，并校验目录存在。
 
     Returns:
@@ -115,8 +131,7 @@ def ensure_src_path() -> Path:
     if not SRC_PATH.is_dir():
         raise SBAPIError(
             f"SelfBrain 源码目录不存在: {SRC_PATH}\n"
-            f"请确认主项目已克隆到 {_DEFAULT_SRC}，"
-            f"或设置环境变量 SB_SELFBRAIN_SRC 指向实际源码目录。"
+            f"请设置环境变量 SB_SELFBRAIN_SRC 指向实际引擎源码目录。"
         )
     sp = str(SRC_PATH)
     if sp not in sys.path:
@@ -142,7 +157,7 @@ def _get_model_loader() -> Any:
         except ImportError as exc:
             raise SBAPIError(
                 f"无法导入 model_loader（SRC_PATH={SRC_PATH}）。"
-                f"请确认 F:/SelfBrain/src/model_loader.py 存在且依赖已安装: {exc}"
+                f"请确认 SRC_PATH/model_loader.py 存在且依赖已安装: {exc}"
             ) from exc
         _model_loader = ml
     return _model_loader
@@ -278,7 +293,7 @@ def load_core() -> Tuple[Any, Any]:
 def load_navigator() -> Tuple[Any, Any]:
     """加载 Navigator 模型（桥接封装，等价 load_component("navigator")）。
 
-    Navigator 负责语义查询 → 数据位置映射（Qwen2.5-1.5B + LoRA）。
+    Navigator 负责语义查询 → 数据位置映射（轻量本地模型，INT4 量化）。
 
     Returns:
         (model, tokenizer) 二元组。
@@ -292,7 +307,7 @@ def load_navigator() -> Tuple[Any, Any]:
 def load_cipher() -> Tuple[Any, Any]:
     """加载 Cipher 模型（桥接封装，等价 load_component("cipher")）。
 
-    Cipher 负责动态密码生成与解密（Qwen2.5-1.5B + LoRA）。
+    Cipher 负责动态密码生成与解密（轻量本地模型，INT4 量化）。
 
     Returns:
         (model, tokenizer) 二元组。
@@ -306,7 +321,7 @@ def load_cipher() -> Tuple[Any, Any]:
 def load_broker() -> Tuple[Any, Any]:
     """加载 Broker 模型（桥接封装，等价 load_component("broker")）。
 
-    Broker 负责数据提取、加密和外部通信（VibeThinker-3B）。
+    Broker 负责数据提取、加密和外部通信（轻量本地模型，INT4 量化）。
 
     Returns:
         (model, tokenizer) 二元组。

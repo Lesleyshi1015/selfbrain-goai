@@ -37,8 +37,15 @@ class TestLoaderConstants:
         assert isinstance(loader.SRC_PATH, Path)
 
     def test_src_path_default_value(self):
-        """默认 SRC_PATH 应指向 F:/SelfBrain/src"""
-        assert loader.SRC_PATH == Path("F:/SelfBrain/src").resolve()
+        """默认 SRC_PATH 基于占位路径（可移植，不硬编码本机绝对路径）"""
+        assert isinstance(loader.SRC_PATH, Path)
+        assert loader._DEFAULT_SRC.startswith("<")
+        assert "F:" not in loader._DEFAULT_SRC
+
+    def test_src_path_env_override(self, monkeypatch):
+        """SB_SELFBRAIN_SRC 环境变量可覆盖默认路径（可移植测试）"""
+        monkeypatch.setenv("SB_SELFBRAIN_SRC", "/tmp/sb-engine-src")
+        assert loader._resolve_src_path() == Path("/tmp/sb-engine-src").resolve()
 
     def test_loaders_mapping(self):
         """_LOADERS 应包含 4 个组件映射"""

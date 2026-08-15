@@ -70,14 +70,15 @@ coverage/
 Thumbs.db
 desktop.ini
 
-# Research (large files, not part of source)
-research/**/*.pdf
-research/**/*.zip
-research/**/*.tar.gz
+# 内部文档 / 参赛材料（本地保留，不入公开仓库）
+docs/
+research/
+参赛PPT/
 
-# 参赛PPT (large files)
-参赛PPT/**/*.pptx
-参赛PPT/**/*.pdf
+# 内部规格（本地保留，不入公开仓库）
+.specs/01-goi-rewrite/
+.specs/ARCHITECTURE.md
+.specs/CONTEXT.md
 
 # Windows 保留设备名历史遗留（git 无法追踪）
 nul

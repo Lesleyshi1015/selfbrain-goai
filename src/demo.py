@@ -30,6 +30,7 @@ from __future__ import annotations
 import argparse
 import io
 import json
+import os
 import sys
 import time
 from datetime import datetime, timezone, timedelta
@@ -180,9 +181,10 @@ def _run_workers(
     nav_backend = None
     if backend_mode == "timeweave":
         try:
-            _tw_path = "F:/memory-palace-goai"
-            if _tw_path not in sys.path:
-                sys.path.insert(0, _tw_path)
+            # 记忆后端源码目录：环境变量 MEMORY_PALACE_SRC 注入（本地路径示例，不随仓库分发）
+            _tw_src = os.environ.get("MEMORY_PALACE_SRC", "")
+            if _tw_src and _tw_src not in sys.path:
+                sys.path.insert(0, _tw_src)
             from memory_palace_goai.memory_backend import TimeWeaveBackend
             nav_backend = TimeWeaveBackend(service_mode="stub")  # stub 零依赖
             print(f"  [INFO] 已加载 TimeWeave 记忆后端（stub 模式）")

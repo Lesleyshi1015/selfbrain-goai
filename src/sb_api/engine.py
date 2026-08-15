@@ -57,8 +57,8 @@ __all__ = ["SBEngine", "SubTask"]
 class SBEngine:
     """SelfBrain 引擎高层 API。
 
-    对主项目 4 个微调模型（core / navigator / cipher / broker）的唯一访问入口，
-    统一封装模型惰性加载、显存管理和结果 envelope 结构。
+    对主项目引擎组件（core / navigator / cipher / broker）的统一访问入口，
+    封装模型惰性加载、显存管理和结果 envelope 结构。
 
     Args:
         config: 可选配置字典。当前支持的键：
