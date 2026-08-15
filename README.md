@@ -58,6 +58,15 @@ pytest                      # 运行全部测试
 
 Demo 展示隐私保护多 Agent 协同闭环：用户请求 → Privacy Guardian 发布任务到黑板 → Workers（Memory Navigator / Cipher Generator 等）分工执行 → Validator 核查 → 整合返回。
 
+**数据隐私保护闭环（真实运行截图，stub 模式零模型）**：
+
+![SelfBrain Data Demo 运行截图](docs/demo_screenshot.png)
+
+```bash
+# 一键复现
+python scripts/data_demo.py   # 或 python src/demo.py "我的隐私数据存在哪里"
+```
+
 ### 运行证据
 
 ```
